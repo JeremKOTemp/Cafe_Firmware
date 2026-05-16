@@ -1,0 +1,1025 @@
+{
+    "timestamp": 1794838505,
+    "all_titles": {
+        "0005001010000100": {
+            "id": "0005001010000100",
+            "name": "boot1",
+            "partition": "SLC",
+            "region": "ALL"
+        },
+        "0005001010000200": {
+            "id": "0005001010000200",
+            "name": "DRH-Firmware",
+            "partition": "SLC",
+            "region": "ALL"
+        },
+        "0005001010000400": {
+            "id": "0005001010000400",
+            "name": "Bluetooth-Firmware",
+            "partition": "SLC",
+            "region": "ALL"
+        },
+        "0005001010004000": {
+            "id": "0005001010004000",
+            "name": "OSv0-cafe2wii",
+            "partition": "SLC",
+            "region": "ALL"
+        },
+        "0005001010004001": {
+            "id": "0005001010004001",
+            "name": "OSv1-HAI-IOS",
+            "partition": "SLC",
+            "region": "ALL"
+        },
+        "0005001010004009": {
+            "id": "0005001010004009",
+            "name": "OSv9-CafeOS",
+            "partition": "SLC",
+            "region": "ALL"
+        },
+        "000500101000400A": {
+            "id": "000500101000400A",
+            "name": "OSv10-CafeOS",
+            "partition": "SLC",
+            "region": "ALL"
+        },
+        "00050010100040FF": {
+            "id": "00050010100040FF",
+            "name": "OSv255-UpdaterOS",
+            "partition": "SLC",
+            "region": "ALL"
+        },
+        "0005001010040000": {
+            "id": "0005001010040000",
+            "name": "Wii U Menu JPN",
+            "partition": "MLC",
+            "region": "JPN"
+        },
+        "0005001010040100": {
+            "id": "0005001010040100",
+            "name": "Wii U Menu USA",
+            "partition": "MLC",
+            "region": "USA"
+        },
+        "0005001010040200": {
+            "id": "0005001010040200",
+            "name": "Wii U Menu EUR",
+            "partition": "MLC",
+            "region": "EUR"
+        },
+        "0005001010041000": {
+            "id": "0005001010041000",
+            "name": "Version Data JPN",
+            "partition": "MLC",
+            "region": "JPN"
+        },
+        "0005001010041100": {
+            "id": "0005001010041100",
+            "name": "Version Data USA",
+            "partition": "MLC",
+            "region": "USA"
+        },
+        "0005001010041200": {
+            "id": "0005001010041200",
+            "name": "Version Data EUR",
+            "partition": "MLC",
+            "region": "EUR"
+        },
+        "0005001010043000": {
+            "id": "0005001010043000",
+            "name": "DRC GamePad Firmware JPN",
+            "partition": "MLC",
+            "region": "JPN"
+        },
+        "0005001010043100": {
+            "id": "0005001010043100",
+            "name": "DRC GamePad Firmware USA",
+            "partition": "MLC",
+            "region": "USA"
+        },
+        "0005001010043200": {
+            "id": "0005001010043200",
+            "name": "DRC GamePad Firmware EUR",
+            "partition": "MLC",
+            "region": "EUR"
+        },
+        "0005001010044000": {
+            "id": "0005001010044000",
+            "name": "DRC Language Atlas JPN",
+            "partition": "MLC",
+            "region": "JPN"
+        },
+        "0005001010044100": {
+            "id": "0005001010044100",
+            "name": "DRC Language Atlas USA",
+            "partition": "MLC",
+            "region": "USA"
+        },
+        "0005001010044200": {
+            "id": "0005001010044200",
+            "name": "DRC Language Atlas EUR",
+            "partition": "MLC",
+            "region": "EUR"
+        },
+        "0005001010045000": {
+            "id": "0005001010045000",
+            "name": "System Updater JPN",
+            "partition": "MLC",
+            "region": "JPN"
+        },
+        "0005001010045100": {
+            "id": "0005001010045100",
+            "name": "System Updater USA",
+            "partition": "MLC",
+            "region": "USA"
+        },
+        "0005001010045200": {
+            "id": "0005001010045200",
+            "name": "System Updater EUR",
+            "partition": "MLC",
+            "region": "EUR"
+        },
+        "0005001010047000": {
+            "id": "0005001010047000",
+            "name": "System Settings JPN",
+            "partition": "MLC",
+            "region": "JPN"
+        },
+        "0005001010047100": {
+            "id": "0005001010047100",
+            "name": "System Settings USA",
+            "partition": "MLC",
+            "region": "USA"
+        },
+        "0005001010047200": {
+            "id": "0005001010047200",
+            "name": "System Settings EUR",
+            "partition": "MLC",
+            "region": "EUR"
+        },
+        "0005001010048000": {
+            "id": "0005001010048000",
+            "name": "Parental Controls JPN",
+            "partition": "MLC",
+            "region": "JPN"
+        },
+        "0005001010048100": {
+            "id": "0005001010048100",
+            "name": "Parental Controls USA",
+            "partition": "MLC",
+            "region": "USA"
+        },
+        "0005001010048200": {
+            "id": "0005001010048200",
+            "name": "Parental Controls EUR",
+            "partition": "MLC",
+            "region": "EUR"
+        },
+        "0005001010049000": {
+            "id": "0005001010049000",
+            "name": "User Settings JPN",
+            "partition": "MLC",
+            "region": "JPN"
+        },
+        "0005001010049100": {
+            "id": "0005001010049100",
+            "name": "User Settings USA",
+            "partition": "MLC",
+            "region": "USA"
+        },
+        "0005001010049200": {
+            "id": "0005001010049200",
+            "name": "User Settings EUR",
+            "partition": "MLC",
+            "region": "EUR"
+        },
+        "000500101004A000": {
+            "id": "000500101004A000",
+            "name": "Mii Maker JPN",
+            "partition": "MLC",
+            "region": "JPN"
+        },
+        "000500101004A100": {
+            "id": "000500101004A100",
+            "name": "Mii Maker USA",
+            "partition": "MLC",
+            "region": "USA"
+        },
+        "000500101004A200": {
+            "id": "000500101004A200",
+            "name": "Mii Maker EUR",
+            "partition": "MLC",
+            "region": "EUR"
+        },
+        "000500101004B000": {
+            "id": "000500101004B000",
+            "name": "Account Settings JPN",
+            "partition": "MLC",
+            "region": "JPN"
+        },
+        "000500101004B100": {
+            "id": "000500101004B100",
+            "name": "Account Settings USA",
+            "partition": "MLC",
+            "region": "USA"
+        },
+        "000500101004B200": {
+            "id": "000500101004B200",
+            "name": "Account Settings EUR",
+            "partition": "MLC",
+            "region": "EUR"
+        },
+        "000500101004C000": {
+            "id": "000500101004C000",
+            "name": "Daily Log JPN",
+            "partition": "MLC",
+            "region": "JPN"
+        },
+        "000500101004C100": {
+            "id": "000500101004C100",
+            "name": "Daily Log USA",
+            "partition": "MLC",
+            "region": "USA"
+        },
+        "000500101004C200": {
+            "id": "000500101004C200",
+            "name": "Daily Log EUR",
+            "partition": "MLC",
+            "region": "EUR"
+        },
+        "000500101004D000": {
+            "id": "000500101004D000",
+            "name": "Notifications JPN",
+            "partition": "MLC",
+            "region": "JPN"
+        },
+        "000500101004D100": {
+            "id": "000500101004D100",
+            "name": "Notifications USA",
+            "partition": "MLC",
+            "region": "USA"
+        },
+        "000500101004D200": {
+            "id": "000500101004D200",
+            "name": "Notifications EUR",
+            "partition": "MLC",
+            "region": "EUR"
+        },
+        "000500101004E000": {
+            "id": "000500101004E000",
+            "name": "Health and Safety JPN",
+            "partition": "MLC",
+            "region": "JPN"
+        },
+        "000500101004E100": {
+            "id": "000500101004E100",
+            "name": "Health and Safety USA",
+            "partition": "MLC",
+            "region": "USA"
+        },
+        "000500101004E200": {
+            "id": "000500101004E200",
+            "name": "Health and Safety EUR",
+            "partition": "MLC",
+            "region": "EUR"
+        },
+        "000500101005A000": {
+            "id": "000500101005A000",
+            "name": "Wii U Chat JPN",
+            "partition": "MLC",
+            "region": "JPN"
+        },
+        "000500101005A100": {
+            "id": "000500101005A100",
+            "name": "Wii U Chat USA",
+            "partition": "MLC",
+            "region": "USA"
+        },
+        "000500101005A200": {
+            "id": "000500101005A200",
+            "name": "Wii U Chat EUR",
+            "partition": "MLC",
+            "region": "EUR"
+        },
+        "0005001010062000": {
+            "id": "0005001010062000",
+            "name": "Software Data Transfer JPN",
+            "partition": "MLC",
+            "region": "JPN"
+        },
+        "0005001010062100": {
+            "id": "0005001010062100",
+            "name": "Software Data Transfer USA",
+            "partition": "MLC",
+            "region": "USA"
+        },
+        "0005001010062200": {
+            "id": "0005001010062200",
+            "name": "Software Data Transfer EUR",
+            "partition": "MLC",
+            "region": "EUR"
+        },
+        "0005001010066000": {
+            "id": "0005001010066000",
+            "name": "ECO Process",
+            "partition": "MLC",
+            "region": "ALL"
+        },
+        "0005001B10042300": {
+            "id": "0005001B10042300",
+            "name": "Shared-memoryclear_exceptions",
+            "partition": "MLC",
+            "region": "ALL"
+        },
+        "0005001B10042400": {
+            "id": "0005001B10042400",
+            "name": "Shared-SystemFonts",
+            "partition": "MLC",
+            "region": "ALL"
+        },
+        "0005001B1004F000": {
+            "id": "0005001B1004F000",
+            "name": "Shared-SWKBD",
+            "partition": "MLC",
+            "region": "ALL"
+        },
+        "0005001B10050000": {
+            "id": "0005001B10050000",
+            "name": "Shared-DeviceEula",
+            "partition": "MLC",
+            "region": "ALL"
+        },
+        "0005001B10051000": {
+            "id": "0005001B10051000",
+            "name": "Shared-ErrEula",
+            "partition": "MLC",
+            "region": "ALL"
+        },
+        "0005001B10052000": {
+            "id": "0005001B10052000",
+            "name": "Shared-CountryData",
+            "partition": "MLC",
+            "region": "ALL"
+        },
+        "0005001B10053000": {
+            "id": "0005001B10053000",
+            "name": "Shared-NGWord",
+            "partition": "MLC",
+            "region": "ALL"
+        },
+        "0005001B10054000": {
+            "id": "0005001B10054000",
+            "name": "Shared-SSL-Certs",
+            "partition": "MLC",
+            "region": "ALL"
+        },
+        "0005001B10056000": {
+            "id": "0005001B10056000",
+            "name": "Shared-mii_resource",
+            "partition": "MLC",
+            "region": "ALL"
+        },
+        "0005001B10057000": {
+            "id": "0005001B10057000",
+            "name": "Shared-startup_data",
+            "partition": "MLC",
+            "region": "ALL"
+        },
+        "0005001B10058000": {
+            "id": "0005001B10058000",
+            "name": "Shared-DRMApp",
+            "partition": "MLC",
+            "region": "ALL"
+        },
+        "0005001B10059000": {
+            "id": "0005001B10059000",
+            "name": "Shared-E-Manual-Data JPN",
+            "partition": "MLC",
+            "region": "JPN"
+        },
+        "0005001B10059100": {
+            "id": "0005001B10059100",
+            "name": "Shared-E-Manual-Data USA",
+            "partition": "MLC",
+            "region": "USA"
+        },
+        "0005001B10059200": {
+            "id": "0005001B10059200",
+            "name": "Shared-E-Manual-Data EUR",
+            "partition": "MLC",
+            "region": "EUR"
+        },
+        "0005001B1005C000": {
+            "id": "0005001B1005C000",
+            "name": "Shared-iso_resource",
+            "partition": "MLC",
+            "region": "ALL"
+        },
+        "0005001B1005F000": {
+            "id": "0005001B1005F000",
+            "name": "Shared-OS-Patch-Map",
+            "partition": "MLC",
+            "region": "ALL"
+        },
+        "0005001B10063000": {
+            "id": "0005001B10063000",
+            "name": "Shared-wagonu_specification",
+            "partition": "MLC",
+            "region": "ALL"
+        },
+        "0005001B10065000": {
+            "id": "0005001B10065000",
+            "name": "Shared-live_dat",
+            "partition": "MLC",
+            "region": "ALL"
+        },
+        "0005001B10067000": {
+            "id": "0005001B10067000",
+            "name": "Shared-layout_defaultjpn",
+            "partition": "MLC",
+            "region": "JPN"
+        },
+        "0005001B10067100": {
+            "id": "0005001B10067100",
+            "name": "Shared-layout_defaultusa",
+            "partition": "MLC",
+            "region": "USA"
+        },
+        "0005001B10067200": {
+            "id": "0005001B10067200",
+            "name": "Shared-layout_defaulteur",
+            "partition": "MLC",
+            "region": "EUR"
+        },
+        "0005001B10068000": {
+            "id": "0005001B10068000",
+            "name": "Shared-sl_list",
+            "partition": "MLC",
+            "region": "ALL"
+        },
+        "0005001B10069000": {
+            "id": "0005001B10069000",
+            "name": "Shared-pclkey_jpn",
+            "partition": "MLC",
+            "region": "JPN"
+        },
+        "0005001B10069100": {
+            "id": "0005001B10069100",
+            "name": "Shared-pclkey_usa",
+            "partition": "MLC",
+            "region": "USA"
+        },
+        "0005001B10069200": {
+            "id": "0005001B10069200",
+            "name": "Shared-pclkey_eur",
+            "partition": "MLC",
+            "region": "EUR"
+        },
+        "0005001B1006C000": {
+            "id": "0005001B1006C000",
+            "name": "Shared-trial_list",
+            "partition": "MLC",
+            "region": "ALL"
+        },
+        "0005003010010009": {
+            "id": "0005003010010009",
+            "name": "HOME Menu OSv9 JPN",
+            "partition": "MLC",
+            "region": "JPN"
+        },
+        "0005003010010109": {
+            "id": "0005003010010109",
+            "name": "HOME Menu OSv9 USA",
+            "partition": "MLC",
+            "region": "USA"
+        },
+        "0005003010010209": {
+            "id": "0005003010010209",
+            "name": "HOME Menu OSv9 EUR",
+            "partition": "MLC",
+            "region": "EUR"
+        },
+        "000500301001000A": {
+            "id": "000500301001000A",
+            "name": "HOME Menu OSv10 JPN",
+            "partition": "MLC",
+            "region": "JPN"
+        },
+        "000500301001010A": {
+            "id": "000500301001010A",
+            "name": "HOME Menu OSv10 USA",
+            "partition": "MLC",
+            "region": "USA"
+        },
+        "000500301001020A": {
+            "id": "000500301001020A",
+            "name": "HOME Menu OSv10 EUR",
+            "partition": "MLC",
+            "region": "EUR"
+        },
+        "0005003010011009": {
+            "id": "0005003010011009",
+            "name": "Fatal Error Viewer OSv9 JPN",
+            "partition": "MLC",
+            "region": "JPN"
+        },
+        "0005003010011109": {
+            "id": "0005003010011109",
+            "name": "Fatal Error Viewer OSv9 USA",
+            "partition": "MLC",
+            "region": "USA"
+        },
+        "0005003010011209": {
+            "id": "0005003010011209",
+            "name": "Fatal Error Viewer OSv9 EUR",
+            "partition": "MLC",
+            "region": "EUR"
+        },
+        "000500301001100A": {
+            "id": "000500301001100A",
+            "name": "Fatal Error Viewer OSv10 JPN",
+            "partition": "MLC",
+            "region": "JPN"
+        },
+        "000500301001110A": {
+            "id": "000500301001110A",
+            "name": "Fatal Error Viewer OSv10 USA",
+            "partition": "MLC",
+            "region": "USA"
+        },
+        "000500301001120A": {
+            "id": "000500301001120A",
+            "name": "Fatal Error Viewer OSv10 EUR",
+            "partition": "MLC",
+            "region": "EUR"
+        },
+        "00050030100110FF": {
+            "id": "00050030100110FF",
+            "name": "Fatal Error Viewer OSv255 JPN",
+            "partition": "MLC",
+            "region": "JPN"
+        },
+        "00050030100111FF": {
+            "id": "00050030100111FF",
+            "name": "Fatal Error Viewer OSv255 USA",
+            "partition": "MLC",
+            "region": "USA"
+        },
+        "00050030100112FF": {
+            "id": "00050030100112FF",
+            "name": "Fatal Error Viewer OSv255 EUR",
+            "partition": "MLC",
+            "region": "EUR"
+        },
+        "000500301001200A": {
+            "id": "000500301001200A",
+            "name": "Internet Browser JPN",
+            "partition": "MLC",
+            "region": "JPN"
+        },
+        "000500301001210A": {
+            "id": "000500301001210A",
+            "name": "Internet Browser USA",
+            "partition": "MLC",
+            "region": "USA"
+        },
+        "000500301001220A": {
+            "id": "000500301001220A",
+            "name": "Internet Browser EUR",
+            "partition": "MLC",
+            "region": "EUR"
+        },
+        "000500301001300A": {
+            "id": "000500301001300A",
+            "name": "Nintendo TVii JPN",
+            "partition": "MLC",
+            "region": "JPN"
+        },
+        "000500301001310A": {
+            "id": "000500301001310A",
+            "name": "Nintendo TVii USA",
+            "partition": "MLC",
+            "region": "USA"
+        },
+        "000500301001320A": {
+            "id": "000500301001320A",
+            "name": "Nintendo TVii EUR",
+            "partition": "MLC",
+            "region": "EUR"
+        },
+        "000500301001400A": {
+            "id": "000500301001400A",
+            "name": "Nintendo eShop JPN",
+            "partition": "MLC",
+            "region": "JPN"
+        },
+        "000500301001410A": {
+            "id": "000500301001410A",
+            "name": "Nintendo eShop USA",
+            "partition": "MLC",
+            "region": "USA"
+        },
+        "000500301001420A": {
+            "id": "000500301001420A",
+            "name": "Nintendo eShop EUR",
+            "partition": "MLC",
+            "region": "EUR"
+        },
+        "000500301001500A": {
+            "id": "000500301001500A",
+            "name": "Friend List JPN",
+            "partition": "MLC",
+            "region": "JPN"
+        },
+        "000500301001510A": {
+            "id": "000500301001510A",
+            "name": "Friend List USA",
+            "partition": "MLC",
+            "region": "USA"
+        },
+        "000500301001520A": {
+            "id": "000500301001520A",
+            "name": "Friend List EUR",
+            "partition": "MLC",
+            "region": "EUR"
+        },
+        "000500301001600A": {
+            "id": "000500301001600A",
+            "name": "Miiverse JPN",
+            "partition": "MLC",
+            "region": "JPN"
+        },
+        "000500301001610A": {
+            "id": "000500301001610A",
+            "name": "Miiverse USA",
+            "partition": "MLC",
+            "region": "USA"
+        },
+        "000500301001620A": {
+            "id": "000500301001620A",
+            "name": "Miiverse EUR",
+            "partition": "MLC",
+            "region": "EUR"
+        },
+        "0005003010017009": {
+            "id": "0005003010017009",
+            "name": "E-Manual OSv9 JPN",
+            "partition": "MLC",
+            "region": "JPN"
+        },
+        "0005003010017109": {
+            "id": "0005003010017109",
+            "name": "E-Manual OSv9 USA",
+            "partition": "MLC",
+            "region": "USA"
+        },
+        "0005003010017209": {
+            "id": "0005003010017209",
+            "name": "E-Manual OSv9 EUR",
+            "partition": "MLC",
+            "region": "EUR"
+        },
+        "000500301001700A": {
+            "id": "000500301001700A",
+            "name": "E-Manual OSv10 JPN",
+            "partition": "MLC",
+            "region": "JPN"
+        },
+        "000500301001710A": {
+            "id": "000500301001710A",
+            "name": "E-Manual OSv10 USA",
+            "partition": "MLC",
+            "region": "USA"
+        },
+        "000500301001720A": {
+            "id": "000500301001720A",
+            "name": "E-Manual OSv10 EUR",
+            "partition": "MLC",
+            "region": "EUR"
+        },
+        "000500301001800A": {
+            "id": "000500301001800A",
+            "name": "Download Management JPN",
+            "partition": "MLC",
+            "region": "JPN"
+        },
+        "000500301001810A": {
+            "id": "000500301001810A",
+            "name": "Download Management USA",
+            "partition": "MLC",
+            "region": "USA"
+        },
+        "000500301001820A": {
+            "id": "000500301001820A",
+            "name": "Download Management EUR",
+            "partition": "MLC",
+            "region": "EUR"
+        },
+        "000500301001900A": {
+            "id": "000500301001900A",
+            "name": "Miiverse Post App JPN",
+            "partition": "MLC",
+            "region": "JPN"
+        },
+        "000500301001910A": {
+            "id": "000500301001910A",
+            "name": "Miiverse Post App USA",
+            "partition": "MLC",
+            "region": "USA"
+        },
+        "000500301001920A": {
+            "id": "000500301001920A",
+            "name": "Miiverse Post App EUR",
+            "partition": "MLC",
+            "region": "EUR"
+        },
+        "000500301001A10A": {
+            "id": "000500301001A10A",
+            "name": "AOC Overlay App",
+            "partition": "MLC",
+            "region": "ALL"
+        },
+        "000500301006D00A": {
+            "id": "000500301006D00A",
+            "name": "amiibo Settings JPN",
+            "partition": "MLC",
+            "region": "JPN"
+        },
+        "000500301006D10A": {
+            "id": "000500301006D10A",
+            "name": "amiibo Settings USA",
+            "partition": "MLC",
+            "region": "USA"
+        },
+        "000500301006D20A": {
+            "id": "000500301006D20A",
+            "name": "amiibo Settings EUR",
+            "partition": "MLC",
+            "region": "EUR"
+        },
+        "0000000700000002": {
+            "id": "0000000700000002",
+            "name": "vWii-System-Menu",
+            "partition": "vWii",
+            "region": "ALL"
+        },
+        "0000000700000009": {
+            "id": "0000000700000009",
+            "name": "vWii-IOS9",
+            "partition": "vWii",
+            "region": "ALL"
+        },
+        "000000070000000C": {
+            "id": "000000070000000C",
+            "name": "vWii-IOS12",
+            "partition": "vWii",
+            "region": "ALL"
+        },
+        "000000070000000D": {
+            "id": "000000070000000D",
+            "name": "vWii-IOS13",
+            "partition": "vWii",
+            "region": "ALL"
+        },
+        "000000070000000E": {
+            "id": "000000070000000E",
+            "name": "vWii-IOS14",
+            "partition": "vWii",
+            "region": "ALL"
+        },
+        "000000070000000F": {
+            "id": "000000070000000F",
+            "name": "vWii-IOS15",
+            "partition": "vWii",
+            "region": "ALL"
+        },
+        "0000000700000011": {
+            "id": "0000000700000011",
+            "name": "vWii-IOS17",
+            "partition": "vWii",
+            "region": "ALL"
+        },
+        "0000000700000015": {
+            "id": "0000000700000015",
+            "name": "vWii-IOS21",
+            "partition": "vWii",
+            "region": "ALL"
+        },
+        "0000000700000016": {
+            "id": "0000000700000016",
+            "name": "vWii-IOS22",
+            "partition": "vWii",
+            "region": "ALL"
+        },
+        "000000070000001C": {
+            "id": "000000070000001C",
+            "name": "vWii-IOS28",
+            "partition": "vWii",
+            "region": "ALL"
+        },
+        "000000070000001F": {
+            "id": "000000070000001F",
+            "name": "vWii-IOS31",
+            "partition": "vWii",
+            "region": "ALL"
+        },
+        "0000000700000021": {
+            "id": "0000000700000021",
+            "name": "vWii-IOS33",
+            "partition": "vWii",
+            "region": "ALL"
+        },
+        "0000000700000022": {
+            "id": "0000000700000022",
+            "name": "vWii-IOS34",
+            "partition": "vWii",
+            "region": "ALL"
+        },
+        "0000000700000023": {
+            "id": "0000000700000023",
+            "name": "vWii-IOS35",
+            "partition": "vWii",
+            "region": "ALL"
+        },
+        "0000000700000024": {
+            "id": "0000000700000024",
+            "name": "vWii-IOS36",
+            "partition": "vWii",
+            "region": "ALL"
+        },
+        "0000000700000025": {
+            "id": "0000000700000025",
+            "name": "vWii-IOS37",
+            "partition": "vWii",
+            "region": "ALL"
+        },
+        "0000000700000026": {
+            "id": "0000000700000026",
+            "name": "vWii-IOS38",
+            "partition": "vWii",
+            "region": "ALL"
+        },
+        "0000000700000029": {
+            "id": "0000000700000029",
+            "name": "vWii-IOS41",
+            "partition": "vWii",
+            "region": "ALL"
+        },
+        "000000070000002B": {
+            "id": "000000070000002B",
+            "name": "vWii-IOS43",
+            "partition": "vWii",
+            "region": "ALL"
+        },
+        "000000070000002D": {
+            "id": "000000070000002D",
+            "name": "vWii-IOS45",
+            "partition": "vWii",
+            "region": "ALL"
+        },
+        "000000070000002E": {
+            "id": "000000070000002E",
+            "name": "vWii-IOS46",
+            "partition": "vWii",
+            "region": "ALL"
+        },
+        "0000000700000030": {
+            "id": "0000000700000030",
+            "name": "vWii-IOS48",
+            "partition": "vWii",
+            "region": "ALL"
+        },
+        "0000000700000035": {
+            "id": "0000000700000035",
+            "name": "vWii-IOS53",
+            "partition": "vWii",
+            "region": "ALL"
+        },
+        "0000000700000037": {
+            "id": "0000000700000037",
+            "name": "vWii-IOS55",
+            "partition": "vWii",
+            "region": "ALL"
+        },
+        "0000000700000038": {
+            "id": "0000000700000038",
+            "name": "vWii-IOS56",
+            "partition": "vWii",
+            "region": "ALL"
+        },
+        "0000000700000039": {
+            "id": "0000000700000039",
+            "name": "vWii-IOS57",
+            "partition": "vWii",
+            "region": "ALL"
+        },
+        "000000070000003A": {
+            "id": "000000070000003A",
+            "name": "vWii-IOS58",
+            "partition": "vWii",
+            "region": "ALL"
+        },
+        "000000070000003B": {
+            "id": "000000070000003B",
+            "name": "vWii-IOS59",
+            "partition": "vWii",
+            "region": "ALL"
+        },
+        "000000070000003E": {
+            "id": "000000070000003E",
+            "name": "vWii-IOS62",
+            "partition": "vWii",
+            "region": "ALL"
+        },
+        "0000000700000050": {
+            "id": "0000000700000050",
+            "name": "vWii-IOS80",
+            "partition": "vWii",
+            "region": "ALL"
+        },
+        "0000000700000200": {
+            "id": "0000000700000200",
+            "name": "vWii-BC-NAND",
+            "partition": "vWii",
+            "region": "ALL"
+        },
+        "0000000700000201": {
+            "id": "0000000700000201",
+            "name": "vWii-BC-WFS",
+            "partition": "vWii",
+            "region": "ALL"
+        },
+        "0007000248414241": {
+            "id": "0007000248414241",
+            "name": "vWii-Shop-Channel",
+            "partition": "vWii",
+            "region": "ALL"
+        },
+        "0007000248414341": {
+            "id": "0007000248414341",
+            "name": "vWii-Mii-Channel",
+            "partition": "vWii",
+            "region": "ALL"
+        },
+        "0007000248435641": {
+            "id": "0007000248435641",
+            "name": "vWii-Return-to-WiiU-Menu",
+            "partition": "vWii",
+            "region": "ALL"
+        },
+        "000700024843554A": {
+            "id": "000700024843554A",
+            "name": "vWii-E-Manual JPN",
+            "partition": "vWii",
+            "region": "JPN"
+        },
+        "0007000248435545": {
+            "id": "0007000248435545",
+            "name": "vWii-E-Manual USA",
+            "partition": "vWii",
+            "region": "USA"
+        },
+        "0007000248435550": {
+            "id": "0007000248435550",
+            "name": "vWii-E-Manual EUR",
+            "partition": "vWii",
+            "region": "EUR"
+        },
+        "0007000848414C4A": {
+            "id": "0007000848414C4A",
+            "name": "vWii-rgnsel JPN",
+            "partition": "vWii",
+            "region": "JPN"
+        },
+        "0007000848414C45": {
+            "id": "0007000848414C45",
+            "name": "vWii-rgnsel USA",
+            "partition": "vWii",
+            "region": "USA"
+        },
+        "0007000848414C50": {
+            "id": "0007000848414C50",
+            "name": "vWii-rgnsel EUR",
+            "partition": "vWii",
+            "region": "EUR"
+        },
+        "0007000848435A4A": {
+            "id": "0007000848435A4A",
+            "name": "vWii-WagonCompat JPN",
+            "partition": "vWii",
+            "region": "JPN"
+        },
+        "0007000848435A45": {
+            "id": "0007000848435A45",
+            "name": "vWii-WagonCompat USA",
+            "partition": "vWii",
+            "region": "USA"
+        },
+        "0007000848435A50": {
+            "id": "0007000848435A50",
+            "name": "vWii-WagonCompat EUR",
+            "partition": "vWii",
+            "region": "EUR"
+        }
+    }
+}
