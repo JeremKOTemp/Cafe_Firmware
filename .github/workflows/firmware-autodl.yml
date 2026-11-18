@@ -1,0 +1,431 @@
+name: Wii U Firmware Auto Downloader
+
+on:
+  workflow_dispatch:
+    inputs:
+      download_all_missing:
+        description: 'Scan and download ALL missing history (If unchecked, downloads ONLY the latest version)'
+        required: false
+        type: boolean
+        default: false
+      extract_data:
+        description: 'Extract decrypted Cemu system data (slc01, mlc01, slccmpt01) into Extracted.Firmware.*.zip'
+        required: false
+        type: boolean
+        default: true
+      update_datfile:
+        description: 'Update and commit the Logiqx XML DATfile on main after processing?'
+        required: false
+        type: boolean
+        default: true
+      firmware_version:
+        description: 'Precise wave or regional version (e.g., 5.5.5, 5.5.6, 5.0.0-pre, 5.0.0-pre0). Leave empty for default.'
+        required: false
+        type: string
+        default: ''
+      latest_complete:
+        description: 'LATEST BUTTON: rebuild the newest firmware of every region (5.5.5 first, then 5.5.6 last), verified against the latest TMDs on the Nintendo servers'
+        required: false
+        type: boolean
+        default: false
+      chunk_size:
+        description: 'Number of consecutive firmware waves processed by one job (fewer jobs, shared downloads)'
+        required: false
+        type: string
+        default: '9'
+      reset_and_reorder:
+        description: 'DELETE ALL existing releases and recreate them in perfect chronological order?'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  check_update:
+    name: Check Wii U Updates & Build Queue
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    outputs:
+      new_version: ${{ steps.history_check.outputs.new_version }}
+      queue_json: ${{ steps.history_check.outputs.queue_json }}
+      chunks_json: ${{ steps.chunk.outputs.chunks_json }}
+    steps:
+      - name: Scan Release History & Build Queue
+        id: history_check
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set +e
+
+          VERSIONS=(
+            "1.0.0|Firmware 1.0.0|2012-11-01"
+            "1.0.1|Firmware 1.0.1|2012-11-18"
+            "1.0.2|Firmware 1.0.2|2012-11-18"
+            "1.0.3-pre|Firmware 1.0.3-pre|2012-11-18"
+            "1.0.4-pre|Firmware 1.0.4-pre|2012-11-18"
+            "1.0.5-pre|Firmware 1.0.5-pre|2012-11-18"
+            "2.0.0|Firmware 2.0.0|2012-11-18"
+            "2.0.1-pre|Firmware 2.0.1-pre|2012-11-26"
+            "2.0.2-pre|Firmware 2.0.2-pre|2012-11-26"
+            "2.1.0|Firmware 2.1.0|2012-12-04"
+            "2.1.1-pre|Firmware 2.1.1-pre|2012-12-15"
+            "2.1.2-pre|Firmware 2.1.2-pre|2013-01-15"
+            "2.1.3|Firmware 2.1.3|2013-03-05"
+            "2.1.4-pre|Firmware 2.1.4-pre|2013-03-15"
+            "2.1.5-pre|Firmware 2.1.5-pre|2013-04-01"
+            "2.2.0-pre|Firmware 2.2.0-pre|2013-04-15"
+            "3.0.0|Firmware 3.0.0|2013-04-25"
+            "3.0.1|Firmware 3.0.1|2013-05-13"
+            "3.0.2-pre|Firmware 3.0.2-pre|2013-05-25"
+            "3.0.3-pre|Firmware 3.0.3-pre|2013-06-10"
+            "3.0.4-pre|Firmware 3.0.4-pre|2013-06-25"
+            "3.1.0|Firmware 3.1.0|2013-07-10"
+            "3.1.1-pre|Firmware 3.1.1-pre|2013-08-01"
+            "3.2.0-pre|Firmware 3.2.0-pre|2013-09-15"
+            "4.0.0|Firmware 4.0.0|2013-09-30"
+            "4.0.1|Firmware 4.0.1J|2013-10-08"
+            "4.0.2|Firmware 4.0.2|2013-11-18"
+            "4.0.3|Firmware 4.0.3|2014-02-24"
+            "4.1.0-pre|Firmware 4.1.0-pre|2014-03-20"
+            "4.1.0|Firmware 4.1.0|2014-03-31"
+            "5.0.0-pre0|Firmware 5.0.0-pre0|2014-05-15"
+            "5.0.0-pre|Firmware 5.0.0-pre|2014-05-25"
+            "5.0.0|Firmware 5.0.0|2014-06-02"
+            "5.1.0-pre|Firmware 5.1.0-pre|2014-07-10"
+            "5.1.0|Firmware 5.1.0|2014-07-21"
+            "5.1.1|Firmware 5.1.1|2014-08-04"
+            "5.1.2|Firmware 5.1.2|2014-08-25"
+            "5.2.0-pre|Firmware 5.2.0-pre|2014-09-15"
+            "5.2.0|Firmware 5.2.0|2014-09-29"
+            "5.3.0-pre|Firmware 5.3.0-pre|2014-10-25"
+            "5.3.0|Firmware 5.3.0|2014-11-10"
+            "5.3.1|Firmware 5.3.1|2014-12-01"
+            "5.3.2|Firmware 5.3.2|2014-12-04"
+            "5.4.0|Firmware 5.4.0|2015-06-08"
+            "5.5.0|Firmware 5.5.0|2015-08-17"
+            "5.5.1|Firmware 5.5.1|2016-01-11"
+            "5.5.2|Firmware 5.5.2|2017-07-17"
+            "5.5.3|Firmware 5.5.3|2018-09-03"
+            "5.5.4|Firmware 5.5.4E|2019-06-24"
+            "5.5.5|Firmware 5.5.5|2021-03-01"
+            "5.5.6|Firmware 5.5.6U|2022-08-29"
+          )
+
+          MANUAL_VERSION="${{ inputs.firmware_version }}"
+          RESET_MODE="${{ inputs.reset_and_reorder }}"
+          DOWNLOAD_ALL="${{ inputs.download_all_missing }}"
+          LATEST_COMPLETE="${{ inputs.latest_complete }}"
+          MISSING_JSON="["
+          COUNT=0
+
+          if [ "$LATEST_COMPLETE" = "true" ]; then
+            echo "INFO: Latest-complete mode: rebuilding the two newest waves in chronological order."
+            TOTAL=${#VERSIONS[@]}
+            for OFFSET in 2 1; do
+              IDX=$((TOTAL-OFFSET))
+              IFS='|' read -r tag title fw_date <<< "${VERSIONS[$IDX]}"
+              if [ $COUNT -gt 0 ]; then MISSING_JSON+=", "; fi
+              MISSING_JSON+="{\"tag\":\"$tag\", \"title\":\"$title\", \"fw_date\":\"$fw_date\", \"m_idx\":$((IDX+1))}"
+              COUNT=$((COUNT+1))
+            done
+            MISSING_JSON+="]"
+            echo "new_version=true" >> "$GITHUB_OUTPUT"
+            echo "queue_json=$MISSING_JSON" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [ "$RESET_MODE" = "true" ]; then
+            echo "WARNING: Reset mode enabled. Purging existing releases..."
+            MASTER_INDEX=0
+            for item in "${VERSIONS[@]}"; do
+              MASTER_INDEX=$((MASTER_INDEX+1))
+              IFS='|' read -r tag title fw_date <<< "$item"
+              gh release delete "$tag" -R ${{ github.repository }} -y --cleanup-tag 2>/dev/null || true
+              if [ $COUNT -gt 0 ]; then MISSING_JSON+=", "; fi
+              MISSING_JSON+="{\"tag\":\"$tag\", \"title\":\"$title\", \"fw_date\":\"$fw_date\", \"m_idx\":$MASTER_INDEX}"
+              COUNT=$((COUNT+1))
+            done
+            MISSING_JSON+="]"
+            echo "new_version=true" >> "$GITHUB_OUTPUT"
+            echo "queue_json=$MISSING_JSON" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [ -n "$MANUAL_VERSION" ]; then
+            echo "INFO: Manual run requested for version $MANUAL_VERSION"
+            MATCH_TAG="$MANUAL_VERSION"
+            MATCH_TITLE="Firmware $MATCH_TAG"
+            MATCH_DATE=$(date +"%Y-%m-%d")
+            MATCH_IDX=999
+
+            MASTER_INDEX=0
+            for item in "${VERSIONS[@]}"; do
+              MASTER_INDEX=$((MASTER_INDEX+1))
+              IFS='|' read -r tag title fw_date <<< "$item"
+              if [ "$tag" = "$MANUAL_VERSION" ]; then
+                MATCH_TAG="$tag"
+                MATCH_TITLE="$title"
+                MATCH_DATE="$fw_date"
+                MATCH_IDX=$MASTER_INDEX
+                break
+              fi
+            done
+            MISSING_JSON+="{\"tag\":\"$MATCH_TAG\", \"title\":\"$MATCH_TITLE\", \"fw_date\":\"$MATCH_DATE\", \"m_idx\":$MATCH_IDX}]"
+            echo "new_version=true" >> "$GITHUB_OUTPUT"
+            echo "queue_json=$MISSING_JSON" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "INFO: Scanning repository deployment history..."
+          EXISTING_TAGS=$(gh release list -R ${{ github.repository }} --limit 1000 --json tagName --jq '.[].tagName' 2> gh_error.log)
+          if [ $? -ne 0 ]; then
+            echo "WARNING: GitHub API is currently unavailable."
+            cat gh_error.log
+            echo "new_version=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [ "$DOWNLOAD_ALL" = "false" ] || [ -z "$DOWNLOAD_ALL" ]; then
+            LAST_INDEX=$((${#VERSIONS[@]}-1))
+            LAST_ITEM="${VERSIONS[$LAST_INDEX]}"
+            IFS='|' read -r tag title fw_date <<< "$LAST_ITEM"
+
+            if ! echo "$EXISTING_TAGS" | grep -qxF "$tag"; then
+              echo "MISSING LATEST WAVE FROM LIST: $tag"
+              MISSING_JSON+="{\"tag\":\"$tag\", \"title\":\"$title\", \"fw_date\":\"$fw_date\", \"m_idx\":$((LAST_INDEX+1))}]"
+              echo "new_version=true" >> "$GITHUB_OUTPUT"
+              echo "queue_json=$MISSING_JSON" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+
+            echo "INFO: Repository is completely up to date with the latest Wii U firmware ($tag)."
+            echo "new_version=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "INFO: Download All Mode -> Scanning entire 51-wave history for missing releases..."
+          MASTER_INDEX=0
+          for item in "${VERSIONS[@]}"; do
+            MASTER_INDEX=$((MASTER_INDEX+1))
+            IFS='|' read -r tag title fw_date <<< "$item"
+            if ! echo "$EXISTING_TAGS" | grep -qxF "$tag"; then
+              if [ $COUNT -gt 0 ]; then MISSING_JSON+=", "; fi
+              MISSING_JSON+="{\"tag\":\"$tag\", \"title\":\"$title\", \"fw_date\":\"$fw_date\", \"m_idx\":$MASTER_INDEX}"
+              COUNT=$((COUNT+1))
+            fi
+          done
+
+          if [ "$COUNT" -gt 0 ]; then
+            MISSING_JSON+="]"
+            echo "new_version=true" >> "$GITHUB_OUTPUT"
+            echo "queue_json=$MISSING_JSON" >> "$GITHUB_OUTPUT"
+          else
+            echo "INFO: All 51 Wii U firmware waves are already deployed."
+            echo "new_version=false" >> "$GITHUB_OUTPUT"
+          fi
+          set -e
+
+      - name: Group the queue into chunks
+        id: chunk
+        env:
+          QUEUE_JSON: ${{ steps.history_check.outputs.queue_json }}
+          CHUNK_SIZE: ${{ inputs.chunk_size }}
+        shell: bash
+        run: |
+          SIZE="${CHUNK_SIZE:-9}"
+          if [ -z "$QUEUE_JSON" ]; then
+            QUEUE_JSON="[]"
+          fi
+          CHUNKS=$(echo "$QUEUE_JSON" | jq -c --argjson n "$SIZE" '. as $q | [range(0; length; $n) | $q[.:(. + $n)]]')
+          echo "chunks_json=$CHUNKS" >> "$GITHUB_OUTPUT"
+          echo "Queue grouped into $(echo "$CHUNKS" | jq 'length') chunk(s)."
+  download_and_release:
+    name: Stage Releases (chunk ${{ strategy.job-index }}, first ${{ matrix.chunk[0].tag }})
+    needs: check_update
+    if: needs.check_update.outputs.new_version == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        chunk: ${{ fromJson(needs.check_update.outputs.chunks_json) }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install required modules
+        run: pip install -r requirements.txt
+
+      - name: Download, verify, extract and stage the chunk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WIIU_COMMON_KEY: ${{ secrets.WIIU_COMMON_KEY }}
+          VWII_COMMON_KEY: ${{ secrets.VWII_COMMON_KEY }}
+          WII_COMMON_KEY: ${{ secrets.WII_COMMON_KEY }}
+          WII_KOREAN_KEY: ${{ secrets.WII_KOREAN_KEY }}
+          EXTRACT_DATA: ${{ inputs.extract_data }}
+          UPDATE_DATFILE: ${{ inputs.update_datfile }}
+          LATEST_COMPLETE: ${{ inputs.latest_complete }}
+          QUEUE_JSON: ${{ needs.check_update.outputs.queue_json }}
+          CHUNK_JSON: ${{ toJson(matrix.chunk) }}
+        shell: bash
+        run: |
+          rm -f Firmware.*.zip Extracted.Firmware.*.zip release_notes.md release_title.txt
+
+          TAGS=$(echo "$CHUNK_JSON" | jq -r '.[].tag' | tr '\n' ' ')
+          ARGS=("--workers" "24" "--logs" "--after-wave-command" "bash .github/scripts/publish_wave.sh")
+          if [ "$EXTRACT_DATA" = "true" ]; then
+            ARGS+=("--extract-data")
+          fi
+          if [ "$UPDATE_DATFILE" = "true" ]; then
+            ARGS+=("--export-dat-cache")
+          fi
+          if [ "$LATEST_COMPLETE" = "true" ]; then
+            ARGS+=("--verify-latest")
+          fi
+
+          python3 firmware_downloader.py $TAGS "${ARGS[@]}"
+  publish_releases:
+    name: Publish Releases in Chronological Order
+    needs: [check_update, download_and_release]
+    if: always() && !cancelled() && needs.check_update.outputs.new_version == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Publish Draft Releases Sequentially
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          QUEUE_JSON: ${{ needs.check_update.outputs.queue_json }}
+        shell: bash
+        run: |
+          echo "$QUEUE_JSON" | jq -c '.[]' | while read -r item; do
+            TAG=$(echo "$item" | jq -r '.tag')
+            echo "Publishing release $TAG in chronological order..."
+            if gh release edit "$TAG" --draft=false -R ${{ github.repository }}; then
+              sleep 2
+            else
+              echo "WARNING: Draft release for $TAG not found or already published."
+            fi
+          done
+
+  finalize_notes:
+    name: Compute Title Statuses From Build Manifests
+    needs: [check_update, download_and_release, publish_releases]
+    if: always() && !cancelled() && needs.check_update.outputs.new_version == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository (main)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install required modules
+        run: |
+          pip install -r requirements.txt
+
+      - name: Rewrite release notes with statuses computed from real TMD versions
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          QUEUE_JSON: ${{ needs.check_update.outputs.queue_json }}
+        shell: bash
+        run: |
+          echo "$QUEUE_JSON" | jq -c '.[]' | while read -r item; do
+            TAG=$(echo "$item" | jq -r '.tag')
+            rm -f release_notes.md release_title.txt
+            if ! python3 firmware_downloader.py "$TAG" --finalize-notes < /dev/null; then
+              echo "WARNING: could not compute statuses for $TAG; its release notes are left unchanged."
+              continue
+            fi
+            FINAL_RELEASE_TITLE=$(head -n 1 release_title.txt | tr -d '\r')
+            gh release edit "$TAG" --title "$FINAL_RELEASE_TITLE" --notes-file release_notes.md -R ${{ github.repository }} < /dev/null || echo "WARNING: could not update release $TAG."
+          done
+
+  consolidate_datfile:
+    name: Consolidate & Commit Updated Logiqx DATfile
+    needs: [check_update, download_and_release, publish_releases]
+    if: always() && !cancelled() && needs.check_update.outputs.new_version == 'true' && inputs.update_datfile
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository (main)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install required modules
+        run: |
+          sudo apt-get update && sudo apt-get install -y libxml2-utils
+          pip install -r requirements.txt
+
+      - name: Consolidate .dat_cache into single Logiqx XML DATfile
+        run: |
+          if [ ! -d ".dat_cache" ]; then
+            echo "INFO: No .dat_cache directory found. Skipping DAT consolidation."
+            exit 0
+          fi
+
+          python3 firmware_downloader.py --consolidate-dat-cache --logs
+
+          LATEST_DAT=$(ls -t Nintendo*Wii\ U\ Firmware*.dat 2>/dev/null | head -n 1)
+          if [ -z "$LATEST_DAT" ]; then
+            exit 0
+          fi
+
+          xmllint --noout "$LATEST_DAT" || { echo "ERROR: Invalid XML in consolidated DATfile"; exit 1; }
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git ls-files "Nintendo*.dat" | grep -v -F "$LATEST_DAT" | xargs -r git rm -f 2>/dev/null || true
+          git add "$LATEST_DAT"
+          git rm -rf .dat_cache/ 2>/dev/null || true
+          rm -rf .dat_cache/
+
+          if git diff --staged --quiet; then
+            echo "INFO: DATfile is already up to date."
+            exit 0
+          fi
+
+          git commit -m "Update Nintendo Wii U Firmware DATfile [skip ci]"
+          for attempt in {1..10}; do
+            git fetch origin main
+            if git push origin HEAD:main; then
+              echo "Consolidated Wii U DATfile committed to main!"
+              break
+            else
+              git rebase origin/main
+              sleep 2
+            fi
+          done

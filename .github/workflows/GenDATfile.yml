@@ -1,0 +1,137 @@
+name: Generate & Sync Wii U DATfile
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'DAT file update mode'
+        required: true
+        default: 'sync_latest'
+        type: choice
+        options:
+          - 'sync_latest'
+          - 'sync_releases'
+          - 'from_zips'
+          - 'fetch_nintendo'
+
+permissions:
+  contents: write
+
+jobs:
+  build_dat:
+    name: Update Wii U DATfile
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - name: Checkout repository (main)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update && sudo apt-get install -y libxml2-utils
+          pip install -r requirements.txt
+
+      - name: Sync ONLY Latest Release to DATfile
+        if: ${{ github.event.inputs.mode == 'sync_latest' || github.event.inputs.mode == '' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WIIU_COMMON_KEY: ${{ secrets.WIIU_COMMON_KEY }}
+          VWII_COMMON_KEY: ${{ secrets.VWII_COMMON_KEY }}
+          WII_COMMON_KEY: ${{ secrets.WII_COMMON_KEY }}
+          WII_KOREAN_KEY: ${{ secrets.WII_KOREAN_KEY }}
+        run: |
+          python3 firmware_downloader.py --sync-latest --logs
+
+      - name: Sync All Missing DATfile Entries from GitHub Releases
+        if: ${{ github.event.inputs.mode == 'sync_releases' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WIIU_COMMON_KEY: ${{ secrets.WIIU_COMMON_KEY }}
+          VWII_COMMON_KEY: ${{ secrets.VWII_COMMON_KEY }}
+          WII_COMMON_KEY: ${{ secrets.WII_COMMON_KEY }}
+          WII_KOREAN_KEY: ${{ secrets.WII_KOREAN_KEY }}
+        run: |
+          python3 firmware_downloader.py --sync-releases --logs
+
+      - name: Download all Firmware.*.zip & Build DAT
+        if: ${{ github.event.inputs.mode == 'from_zips' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WIIU_COMMON_KEY: ${{ secrets.WIIU_COMMON_KEY }}
+          VWII_COMMON_KEY: ${{ secrets.VWII_COMMON_KEY }}
+          WII_COMMON_KEY: ${{ secrets.WII_COMMON_KEY }}
+          WII_KOREAN_KEY: ${{ secrets.WII_KOREAN_KEY }}
+        run: |
+          echo "INFO: Fetching release tags..."
+          TAGS=$(gh release list -L 1000 --json tagName --jq '.[].tagName')
+
+          mkdir -p firmware_zips
+          cd firmware_zips
+
+          for TAG in $TAGS; do
+            echo "Checking release $TAG for Firmware.*.zip archives..."
+            gh release download "$TAG" -p "Firmware.*.zip" --clobber 2>/dev/null || true
+          done
+
+          cd ..
+          mv firmware_zips/Firmware.*.zip . 2>/dev/null || true
+          rm -rf firmware_zips
+
+          python3 firmware_downloader.py --dat-from-zips --logs
+
+      - name: Download latest firmware from Nintendo CDN & Update DAT
+        if: ${{ github.event.inputs.mode == 'fetch_nintendo' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WIIU_COMMON_KEY: ${{ secrets.WIIU_COMMON_KEY }}
+          VWII_COMMON_KEY: ${{ secrets.VWII_COMMON_KEY }}
+          WII_COMMON_KEY: ${{ secrets.WII_COMMON_KEY }}
+          WII_KOREAN_KEY: ${{ secrets.WII_KOREAN_KEY }}
+        run: |
+          python3 firmware_downloader.py --datfile --logs
+
+      - name: Commit Updated DATfile to main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          LATEST_DAT=$(ls -t Nintendo*Wii\ U\ Firmware*.dat 2>/dev/null | head -n 1)
+
+          if [ -z "$LATEST_DAT" ]; then
+            echo "WARNING: No DATfile found."
+            exit 0
+          fi
+
+          xmllint --noout "$LATEST_DAT" || { echo "ERROR: Invalid XML in $LATEST_DAT"; exit 1; }
+
+          git ls-files "Nintendo*.dat" | grep -v -F "$LATEST_DAT" | xargs -r git rm -f 2>/dev/null || true
+
+          git add "$LATEST_DAT"
+          rm -f *.zip
+
+          if git diff --staged --quiet; then
+            echo "INFO: DATfile is already completely up to date. Nothing to commit."
+            exit 0
+          fi
+
+          git commit -m "Update Nintendo Wii U Firmware DATfile [skip ci]"
+
+          for attempt in {1..10}; do
+            git fetch origin main
+            if git push origin HEAD:main; then
+              echo "Wii U DATfile successfully committed to main!"
+              break
+            else
+              git rebase origin/main
+              sleep 2
+            fi
+          done

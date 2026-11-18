@@ -1,0 +1,347 @@
+name: Wii U Firmware Inspector & Fixer
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_tag:
+        description: 'Tag to check (for example 5.0.0-pre, 5.5.5, 5.5.6 or ALL)'
+        required: true
+        type: string
+        default: 'ALL'
+      generate_datfile:
+        description: 'Generate and consolidate the DAT file on main'
+        required: false
+        type: boolean
+        default: true
+      extract_zip:
+        description: 'Extract the decrypted system files (slc01, mlc01, slccmpt01) into Extracted.Firmware.*.zip'
+        required: false
+        type: boolean
+        default: true
+      redownload_missing:
+        description: 'Download again from the Nintendo servers when a Firmware.*.zip archive is missing from the release'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  prepare_matrix:
+    name: Scan & Generate Parallel Matrix
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build JSON Array
+        id: set-matrix
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TARGET="${{ inputs.target_tag }}"
+          if [ "$TARGET" = "ALL" ]; then
+            echo "INFO: Fetching all existing release tags from repository..."
+            TAGS=$(gh release list -L 1000 --json tagName --jq '[.[].tagName]')
+          else
+            echo "INFO: Target is a single tag: $TARGET"
+            TAGS=$(jq -n --arg tag "$TARGET" '[$tag]')
+          fi
+
+          if [ "$(echo "$TAGS" | jq 'length')" -eq 0 ]; then
+            echo "ERROR: No tags found to process."
+            exit 1
+          fi
+
+          echo "matrix=$TAGS" >> "$GITHUB_OUTPUT"
+
+  verify_and_fix:
+    name: Inspect -> ${{ matrix.tag }}
+    needs: prepare_matrix
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      max-parallel: 10
+      matrix:
+        tag: ${{ fromJson(needs.prepare_matrix.outputs.matrix) }}
+    steps:
+      - name: Checkout repository (main)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install required modules
+        run: |
+          pip install -r requirements.txt
+
+      - name: Execute Local Inspection, Extraction & Release Update
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WIIU_COMMON_KEY: ${{ secrets.WIIU_COMMON_KEY }}
+          VWII_COMMON_KEY: ${{ secrets.VWII_COMMON_KEY }}
+          WII_COMMON_KEY: ${{ secrets.WII_COMMON_KEY }}
+          WII_KOREAN_KEY: ${{ secrets.WII_KOREAN_KEY }}
+          GENERATE_DATFILE: ${{ inputs.generate_datfile }}
+          EXTRACT_ZIP: ${{ inputs.extract_zip }}
+          REDOWNLOAD_MISSING: ${{ inputs.redownload_missing }}
+          TAG: ${{ matrix.tag }}
+        run: |
+          set +e
+          set +o pipefail
+
+          echo "========================================"
+          echo "INSPECTING WII U RELEASE: $TAG"
+          echo "========================================"
+
+          rm -f Firmware.*.zip Extracted.Firmware.*.zip release_notes.md release_title.txt
+
+          echo "Downloading Firmware.*.zip archives from release $TAG..."
+          gh release download "$TAG" -p "Firmware.*.zip" --clobber 2>/dev/null || true
+
+          FW_COUNT=$(ls Firmware.*.zip 2>/dev/null | grep -v -i "^Extracted" | wc -l)
+
+          CMD_ARGS=("$TAG" "--logs")
+          if [ "$FW_COUNT" -gt 0 ] && [ "$REDOWNLOAD_MISSING" != "true" ]; then
+            echo "Found $FW_COUNT existing Firmware.*.zip archive(s). Running in LOCAL inspection mode..."
+            CMD_ARGS+=("--local")
+          else
+            echo "No local Firmware.*.zip found (or redownload requested). Fetching directly from Nintendo CDN..."
+          fi
+
+          if [ "$EXTRACT_ZIP" = "true" ]; then
+            CMD_ARGS+=("--extract-data")
+          fi
+
+          if [ "$GENERATE_DATFILE" = "true" ]; then
+            CMD_ARGS+=("--export-dat-cache")
+          fi
+
+          python3 firmware_downloader.py "${CMD_ARGS[@]}" > script_output.log 2>&1
+          PY_EXIT=$?
+          cat script_output.log
+
+          if [ $PY_EXIT -ne 0 ]; then
+            echo "ERROR: firmware_downloader.py failed with exit code $PY_EXIT for $TAG!"
+            exit 1
+          fi
+
+          if [ ! -s "release_notes.md" ] || [ ! -s "release_title.txt" ]; then
+            echo "ERROR: Missing release_notes.md or release_title.txt for $TAG!"
+            exit 1
+          fi
+
+          for zf in Firmware.*.zip Extracted.Firmware.*.zip; do
+            if [ -f "$zf" ]; then
+              unzip -tq "$zf" || { echo "ERROR: ZIP integrity check failed for $zf"; exit 1; }
+            fi
+          done
+
+          if [ "$GENERATE_DATFILE" = "true" ] && [ ! -s ".dat_cache/${TAG}.json" ]; then
+            echo "ERROR: Missing or empty .dat_cache/${TAG}.json for $TAG!"
+            exit 1
+          fi
+
+          FINAL_RELEASE_TITLE=$(head -n 1 release_title.txt | tr -d '\r')
+
+          echo "Updating GitHub Release Title & Notes for $TAG -> $FINAL_RELEASE_TITLE"
+          gh release edit "$TAG" --title "$FINAL_RELEASE_TITLE" --notes-file release_notes.md || {
+            echo "ERROR: Failed to update release metadata for $TAG"
+            exit 1
+          }
+
+          UPLOADED_ASSETS=()
+          if [ "$FW_COUNT" -eq 0 ] || [ "$REDOWNLOAD_MISSING" = "true" ]; then
+            for fzip in Firmware.*.zip; do
+              if [ -f "$fzip" ]; then
+                echo "Uploading Firmware archive: $fzip..."
+                gh release upload "$TAG" "$fzip" --clobber || exit 1
+                UPLOADED_ASSETS+=("$fzip")
+              fi
+            done
+          fi
+
+          if [ "$EXTRACT_ZIP" = "true" ]; then
+            for ezip in Extracted.Firmware.*.zip; do
+              if [ -f "$ezip" ]; then
+                echo "Uploading Extracted Cemu archive: $ezip..."
+                gh release upload "$TAG" "$ezip" --clobber || exit 1
+                UPLOADED_ASSETS+=("$ezip")
+              fi
+            done
+          fi
+
+          REMOTE_ASSETS=$(gh release view "$TAG" --json assets --jq '[.assets[].name]')
+          for asset in "${UPLOADED_ASSETS[@]}"; do
+            if ! echo "$REMOTE_ASSETS" | jq -e --arg a "$asset" 'index($a) != null' >/dev/null; then
+              echo "ERROR: Uploaded asset $asset not found on GitHub release $TAG!"
+              exit 1
+            fi
+          done
+
+          if [ "$GENERATE_DATFILE" = "true" ] && [ -f ".dat_cache/${TAG}.json" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+            cp ".dat_cache/${TAG}.json" "/tmp/${TAG}.json"
+
+            for attempt in {1..20}; do
+              git fetch origin main
+              git reset --hard origin/main
+              mkdir -p .dat_cache
+              cp "/tmp/${TAG}.json" ".dat_cache/${TAG}.json"
+              git add ".dat_cache/${TAG}.json"
+              if git diff --staged --quiet; then
+                break
+              fi
+              git commit -m "Cache Wii U DAT metadata for $TAG [skip ci]" || true
+              git push origin HEAD:main > /dev/null 2>&1 && break || sleep $((2 + RANDOM % 6))
+            done
+            rm -f "/tmp/${TAG}.json"
+          fi
+
+          if ls build_manifests/*.json > /dev/null 2>&1; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            rm -rf /tmp/build_manifests
+            mkdir -p /tmp/build_manifests
+            cp build_manifests/*.json /tmp/build_manifests/
+            for attempt in {1..20}; do
+              git fetch origin main
+              git reset --hard origin/main
+              mkdir -p build_manifests
+              cp /tmp/build_manifests/*.json build_manifests/
+              git add build_manifests
+              if git diff --staged --quiet; then
+                break
+              fi
+              git commit -m "Record build manifests for $TAG [skip ci]" || true
+              git push origin HEAD:main > /dev/null 2>&1 && break || sleep $((2 + RANDOM % 6))
+            done
+            rm -rf /tmp/build_manifests
+          fi
+
+          rm -f Firmware.*.zip Extracted.Firmware.*.zip script_output.log release_notes.md release_title.txt
+          echo "Inspection completed for $TAG."
+
+  finalize_notes:
+    name: Compute Title Statuses From Build Manifests
+    needs: [prepare_matrix, verify_and_fix]
+    if: always() && !cancelled()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository (main)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install required modules
+        run: |
+          pip install -r requirements.txt
+
+      - name: Rewrite release notes with statuses computed from real TMD versions
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MATRIX_JSON: ${{ needs.prepare_matrix.outputs.matrix }}
+        shell: bash
+        run: |
+          echo "$MATRIX_JSON" | jq -r '.[]' | while read -r TAG; do
+            rm -f release_notes.md release_title.txt
+            if ! python3 firmware_downloader.py "$TAG" --finalize-notes < /dev/null; then
+              echo "WARNING: could not compute statuses for $TAG; its release notes are left unchanged."
+              continue
+            fi
+            FINAL_RELEASE_TITLE=$(head -n 1 release_title.txt | tr -d '\r')
+            gh release edit "$TAG" --title "$FINAL_RELEASE_TITLE" --notes-file release_notes.md -R ${{ github.repository }} < /dev/null || echo "WARNING: could not update release $TAG."
+          done
+
+  consolidate_datfile:
+    name: Consolidate Single Clean Wii U DATfile
+    needs: [prepare_matrix, verify_and_fix]
+    if: always() && !cancelled() && inputs.generate_datfile
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository (main)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install required modules
+        run: |
+          sudo apt-get update && sudo apt-get install -y libxml2-utils
+          pip install -r requirements.txt
+
+      - name: Consolidate .dat_cache into single Logiqx XML DATfile
+        env:
+          WIIU_COMMON_KEY: ${{ secrets.WIIU_COMMON_KEY }}
+          VWII_COMMON_KEY: ${{ secrets.VWII_COMMON_KEY }}
+          WII_COMMON_KEY: ${{ secrets.WII_COMMON_KEY }}
+          WII_KOREAN_KEY: ${{ secrets.WII_KOREAN_KEY }}
+        run: |
+          python3 firmware_downloader.py --consolidate-dat-cache --logs
+
+      - name: Commit clean single DATfile to main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          LATEST_DAT=$(ls -t Nintendo*Wii\ U\ Firmware*.dat 2>/dev/null | head -n 1)
+          if [ -z "$LATEST_DAT" ]; then
+            echo "ERROR: No DATfile found after consolidation."
+            exit 1
+          fi
+
+          xmllint --noout "$LATEST_DAT" || { echo "ERROR: Invalid XML in $LATEST_DAT"; exit 1; }
+
+          git ls-files "Nintendo*.dat" | grep -v -F "$LATEST_DAT" | xargs -r git rm -f 2>/dev/null || true
+          git add "$LATEST_DAT"
+          git rm -rf .dat_cache/ 2>/dev/null || true
+          rm -rf .dat_cache/
+
+          if git diff --staged --quiet; then
+            echo "INFO: DATfile is already completely up to date."
+            exit 0
+          fi
+
+          git commit -m "Consolidate single clean Nintendo Wii U Firmware DATfile [skip ci]" || true
+
+          for attempt in {1..10}; do
+            git fetch origin main
+            if git push origin HEAD:main; then
+              echo "Consolidated Wii U DATfile pushed to main successfully!"
+              break
+            else
+              git rebase origin/main
+              sleep 2
+            fi
+          done
